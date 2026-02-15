@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e1a">
+<title>MA EMS Protocols</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0e1a;--card:#141929;--text:#ffffff;--text2:#8b92a8;
+--accent:#d9534f;--fr:#4a90d9;--emt:#f0ad4e;--aemt:#34c759;--para:#d9534f;
+--radius:12px;--transition:0.2s ease;
+--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom);
+--sal:env(safe-area-inset-left);--sar:env(safe-area-inset-right);
+}
+html,body{
+background:var(--bg);color:var(--text);font-family:-apple-system,SF Pro,Inter,system-ui,sans-serif;
+-webkit-font-smoothing:antialiased;overflow-x:hidden;height:100%;
+}
+body{padding-top:var(--sat);padding-bottom:var(--sab);padding-left:var(--sal);padding-right:var(--sar)}
+
+/* APP SHELL */
+#app{min-height:100vh;position:relative}
+.view{display:none;animation:fadeIn .2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+.header{
+padding:20px 16px 0;text-align:center;
+}
+.header .logo{font-size:48px;margin-bottom:4px}
+.header h1{font-size:22px;font-weight:700;letter-spacing:-0.3px}
+.header .subtitle{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* SEARCH */
+.search-wrap{
+padding:16px;position:sticky;top:0;z-index:100;background:var(--bg);
+}
+.search-box{
+background:var(--card);border:1px solid rgba(255,255,255,0.06);
+border-radius:var(--radius);padding:12px 16px 12px 42px;width:100%;
+font-size:16px;color:var(--text);outline:none;transition:border var(--transition);
+-webkit-appearance:none;
+}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--text2)}
+.search-wrap .icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:16px;pointer-events:none}
+.search-clear{position:absolute;right:28px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;display:none;padding:4px}
+
+/* PILLS */
+.pills{
+display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+}
+.pills::-webkit-scrollbar{display:none}
+.pill{
+padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;
+background:var(--card);color:var(--text2);border:1px solid rgba(255,255,255,0.06);
+cursor:pointer;white-space:nowrap;transition:all var(--transition);flex-shrink:0;
+}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* SECTION HEADERS */
+.section-header{
+padding:24px 16px 8px;font-size:12px;font-weight:700;color:var(--text2);
+text-transform:uppercase;letter-spacing:1px;
+}
+
+/* PROTOCOL CARDS */
+.protocol-card{
+background:var(--card);margin:4px 16px;border-radius:var(--radius);padding:14px 16px;
+cursor:pointer;transition:all var(--transition);border:1px solid rgba(255,255,255,0.04);
+display:flex;align-items:flex-start;gap:12px;
+}
+.protocol-card:active{transform:scale(0.98);background:#1a2035}
+.protocol-card .pid{
+font-size:15px;font-weight:800;color:var(--accent);min-width:42px;padding-top:1px;
+}
+.protocol-card .pinfo{flex:1;min-width:0}
+.protocol-card .ptitle{font-size:15px;font-weight:600;line-height:1.3}
+.protocol-card .badges{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.protocol-card .snippet{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.4}
+.protocol-card .snippet mark{background:rgba(217,83,79,0.3);color:var(--text);border-radius:2px;padding:0 2px}
+.badge{
+font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;
+text-transform:uppercase;letter-spacing:0.5px;
+}
+.badge-FR{background:rgba(74,144,217,0.2);color:var(--fr)}
+.badge-E{background:rgba(240,173,78,0.2);color:var(--emt)}
+.badge-A{background:rgba(52,199,89,0.2);color:var(--aemt)}
+.badge-P{background:rgba(217,83,79,0.2);color:var(--para)}
+.badge-ALL{background:rgba(255,255,255,0.1);color:var(--text2)}
+
+/* DETAIL VIEW */
+.detail-header{
+padding:12px 16px;display:flex;align-items:center;gap:12px;
+position:sticky;top:0;background:var(--bg);z-index:100;
+border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.back-btn{
+background:none;border:none;color:var(--accent);font-size:28px;cursor:pointer;
+padding:4px 8px 4px 0;line-height:1;
+}
+.detail-title-wrap{flex:1;min-width:0}
+.detail-title-wrap .pid{font-size:14px;font-weight:800;color:var(--accent)}
+.detail-title-wrap .ptitle{font-size:17px;font-weight:700;line-height:1.2}
+
+.detail-body{padding:16px;padding-bottom:calc(40px + var(--sab))}
+.detail-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+
+/* CONTENT FORMATTING */
+.proto-content{font-size:15px;line-height:1.65;color:rgba(255,255,255,0.9)}
+.proto-content .so-header{
+font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;
+padding:10px 14px;border-radius:8px;margin:20px 0 12px;
+}
+.so-header-fr{background:rgba(74,144,217,0.15);color:var(--fr);border-left:3px solid var(--fr)}
+.so-header-emt{background:rgba(240,173,78,0.15);color:var(--emt);border-left:3px solid var(--emt)}
+.so-header-aemt{background:rgba(52,199,89,0.15);color:var(--aemt);border-left:3px solid var(--aemt)}
+.so-header-para{background:rgba(217,83,79,0.15);color:var(--para);border-left:3px solid var(--para)}
+.so-header-mc{background:rgba(139,146,168,0.15);color:var(--text2);border-left:3px solid var(--text2)}
+
+.proto-content .caution-block{
+background:rgba(217,83,79,0.1);border-left:3px solid var(--accent);
+padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;
+font-size:14px;color:#ff9999;
+}
+.proto-content .caution-block strong{color:var(--accent)}
+.proto-content .note-block{
+background:rgba(74,144,217,0.08);border-left:3px solid var(--fr);
+padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px;
+}
+.proto-content .pearls-block{
+background:rgba(52,199,89,0.08);border-left:3px solid var(--aemt);
+padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px;
+}
+.proto-content .pearls-block::before{content:'💡 '}
+.proto-content ul{list-style:none;padding-left:0;margin:6px 0}
+.proto-content li{padding:3px 0 3px 16px;position:relative}
+.proto-content li::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;background:var(--accent);border-radius:50%}
+.proto-content li li{padding-left:16px}
+.proto-content li li::before{background:var(--text2);width:4px;height:4px;top:12px}
+.proto-content .xref{color:var(--accent);text-decoration:underline;cursor:pointer}
+.proto-content p{margin:8px 0}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:60px 20px;color:var(--text2)}
+.no-results .emoji{font-size:48px;margin-bottom:12px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:0;height:0}
+
+/* INSTALL BANNER */
+.install-banner{
+position:fixed;bottom:var(--sab,16px);left:16px;right:16px;
+background:var(--accent);color:#fff;padding:14px 20px;border-radius:var(--radius);
+display:none;align-items:center;justify-content:space-between;z-index:200;
+box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.install-banner button{background:#fff;color:var(--accent);border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer}
+.install-banner .dismiss{background:none;color:rgba(255,255,255,0.7);font-size:13px;padding:8px}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- HOME VIEW -->
+<div id="home-view" class="view active">
+<div class="header">
+<div class="logo">🚑</div>
+<h1>MA EMS Protocols</h1>
+<div class="subtitle">Statewide Treatment Protocols · v2026.1</div>
+</div>
+<div class="search-wrap">
+<span class="icon">🔍</span>
+<input type="text" class="search-box" id="search" placeholder="Search protocols..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+<button class="search-clear" id="search-clear" aria-label="Clear search">✕</button>
+</div>
+<div class="pills" id="pills"></div>
+<div id="protocol-list"></div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="detail-view" class="view">
+<div class="detail-header">
+<button class="back-btn" id="back-btn">‹</button>
+<div class="detail-title-wrap">
+<div class="pid" id="detail-pid"></div>
+<div class="ptitle" id="detail-ptitle"></div>
+</div>
+</div>
+<div class="detail-badges" id="detail-badges"></div>
+<div class="detail-body">
+<div class="proto-content" id="detail-content"></div>
+</div>
+</div>
+</div>
+
+<div class="install-banner" id="install-banner">
+<span>Install this app</span>
+<div>
+<button class="dismiss" id="install-dismiss">Not now</button>
+<button id="install-btn">Install</button>
+</div>
+</div>
+
+<script>
+// Load protocols
+let PROTOCOLS = [];
+let currentLevel = 'All';
+let searchTerm = '';
+const LEVEL_MAP = {'FR':'FR','E':'EMT','A':'AEMT','P':'Paramedic','ALL':'All'};
+const LEVEL_KEY = {'All':null,'FR':'FR','EMT':'E','AEMT':'A','Paramedic':'P'};
+const LEVELS = ['All','FR','EMT','AEMT','Paramedic'];
+
+async function init() {
+  const resp = await fetch('protocols.json');
+  const data = await resp.json();
+  PROTOCOLS = Object.values(data).sort((a,b) => {
+    const an = parseFloat(a.id) || 999, bn = parseFloat(b.id) || 999;
+    return an - bn || a.id.localeCompare(b.id);
+  });
+  renderPills();
+  renderList();
+  setupSearch();
+  setupNav();
+}
+
+function renderPills() {
+  const el = document.getElementById('pills');
+  el.innerHTML = LEVELS.map(l =>
+    `<div class="pill${l===currentLevel?' active':''}" data-level="${l}">${l}</div>`
+  ).join('');
+  el.addEventListener('click', e => {
+    const pill = e.target.closest('.pill');
+    if (!pill) return;
+    currentLevel = pill.dataset.level;
+    el.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.level === currentLevel));
+    renderList();
+  });
+}
+
+function getFilteredProtocols() {
+  let list = PROTOCOLS;
+  const lk = LEVEL_KEY[currentLevel];
+  if (lk) list = list.filter(p => p.provider_levels.includes(lk) || p.provider_levels.includes('ALL'));
+  return list;
+}
+
+function renderList() {
+  const el = document.getElementById('protocol-list');
+  const q = searchTerm.trim().toLowerCase();
+
+  if (q) {
+    renderSearch(el, q);
+    return;
+  }
+
+  const protocols = getFilteredProtocols();
+  let html = '';
+  let lastSection = '';
+  for (const p of protocols) {
+    if (p.section !== lastSection) {
+      lastSection = p.section;
+      html += `<div class="section-header">${esc(p.section)}</div>`;
+    }
+    html += cardHTML(p);
+  }
+  el.innerHTML = html || '<div class="no-results"><div class="emoji">📋</div>No protocols found</div>';
+}
+
+function renderSearch(el, q) {
+  const protocols = getFilteredProtocols();
+  const results = [];
+  for (const p of protocols) {
+    const idMatch = p.id.toLowerCase().includes(q);
+    const titleMatch = p.title.toLowerCase().includes(q);
+    const contentIdx = p.content.toLowerCase().indexOf(q);
+    if (!idMatch && !titleMatch && contentIdx === -1) continue;
+    const score = idMatch ? 3 : titleMatch ? 2 : 1;
+    let snippet = '';
+    if (contentIdx !== -1) {
+      const start = Math.max(0, contentIdx - 40);
+      const end = Math.min(p.content.length, contentIdx + q.length + 80);
+      let s = (start > 0 ? '…' : '') + p.content.substring(start, end) + (end < p.content.length ? '…' : '');
+      s = esc(s).replace(new RegExp(escRegex(esc(q)), 'gi'), '<mark>$&</mark>');
+      snippet = s;
+    }
+    results.push({ p, score, snippet });
+  }
+  results.sort((a, b) => b.score - a.score);
+
+  if (!results.length) {
+    el.innerHTML = '<div class="no-results"><div class="emoji">🔍</div>No results for "' + esc(q) + '"</div>';
+    return;
+  }
+  el.innerHTML = results.map(r => cardHTML(r.p, r.snippet)).join('');
+}
+
+function cardHTML(p, snippet) {
+  return `<div class="protocol-card" data-id="${p.id}">
+    <div class="pid">${esc(p.id)}</div>
+    <div class="pinfo">
+      <div class="ptitle">${esc(p.title)}</div>
+      <div class="badges">${p.provider_levels.map(l => `<span class="badge badge-${l}">${LEVEL_MAP[l]||l}</span>`).join('')}</div>
+      ${snippet ? `<div class="snippet">${snippet}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function setupSearch() {
+  const input = document.getElementById('search');
+  const clear = document.getElementById('search-clear');
+  input.addEventListener('input', () => {
+    searchTerm = input.value;
+    clear.style.display = searchTerm ? 'block' : 'none';
+    renderList();
+  });
+  clear.addEventListener('click', () => {
+    input.value = '';
+    searchTerm = '';
+    clear.style.display = 'none';
+    renderList();
+    input.focus();
+  });
+}
+
+function setupNav() {
+  document.getElementById('protocol-list').addEventListener('click', e => {
+    const card = e.target.closest('.protocol-card');
+    if (!card) return;
+    showDetail(card.dataset.id);
+  });
+  document.getElementById('back-btn').addEventListener('click', showHome);
+  document.getElementById('detail-content').addEventListener('click', e => {
+    if (e.target.classList.contains('xref')) {
+      e.preventDefault();
+      showDetail(e.target.dataset.id);
+    }
+  });
+  window.addEventListener('popstate', e => {
+    if (e.state && e.state.id) showDetail(e.state.id, true);
+    else showHome(null, true);
+  });
+}
+
+function showDetail(id, noHistory) {
+  const p = PROTOCOLS.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('detail-pid').textContent = p.id;
+  document.getElementById('detail-ptitle').textContent = p.title;
+  document.getElementById('detail-badges').innerHTML = p.provider_levels.map(l =>
+    `<span class="badge badge-${l}">${LEVEL_MAP[l]||l}</span>`
+  ).join('');
+  document.getElementById('detail-content').innerHTML = formatContent(p.content, p.id);
+  document.getElementById('home-view').classList.remove('active');
+  document.getElementById('detail-view').classList.add('active');
+  window.scrollTo(0, 0);
+  if (!noHistory) history.pushState({ id }, '', '#' + id);
+}
+
+function showHome(e, noHistory) {
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('home-view').classList.add('active');
+  if (!noHistory) history.pushState(null, '', location.pathname);
+}
+
+function formatContent(text, currentId) {
+  // Split into lines
+  let lines = text.split('\n');
+  let html = '';
+  let inList = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+    if (!line) { html += '<br>'; continue; }
+
+    // Standing orders headers
+    if (/^FIRST RESPONDER\b/i.test(line) && /STANDING ORDER/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-fr">${esc(line)}</div>`;
+      continue;
+    }
+    if (/^EMT\b/i.test(line) && /STANDING ORDER/i.test(line) && !/ADVANCED/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-emt">${esc(line)}</div>`;
+      continue;
+    }
+    if (/^ADVANCED EMT/i.test(line) && /STANDING ORDER/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-aemt">${esc(line)}</div>`;
+      continue;
+    }
+    if (/^EMT\/ADVANCED EMT/i.test(line) || /^ADVANCED EMT\/PARAMEDIC/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-aemt">${esc(line)}</div>`;
+      continue;
+    }
+    if (/^PARAMEDIC\b/i.test(line) && /STANDING ORDER/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-para">${esc(line)}</div>`;
+      continue;
+    }
+    if (/^MEDICAL CONTROL/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="so-header so-header-mc">${esc(line)}</div>`;
+      continue;
+    }
+
+    // CAUTION
+    if (/^CAUTION:/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="caution-block"><strong>⚠️ CAUTION:</strong> ${addXrefs(esc(line.replace(/^CAUTION:\s*/i,'')))}</div>`;
+      continue;
+    }
+    // NOTE
+    if (/^NOTE:/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="note-block"><strong>📝 NOTE:</strong> ${addXrefs(esc(line.replace(/^NOTE:\s*/i,'')))}</div>`;
+      continue;
+    }
+    // PEARLS
+    if (/^PEARLS?:/i.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="pearls-block"><strong>PEARLS:</strong> ${addXrefs(esc(line.replace(/^PEARLS?:\s*/i,'')))}</div>`;
+      continue;
+    }
+
+    // Bullet points
+    if (/^[•●]\s/.test(line) || /^o\s/.test(line)) {
+      let content = line.replace(/^[•●o]\s*/, '');
+      let cls = /^o\s/.test(line) ? ' style="padding-left:32px"' : '';
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li${cls}>${addXrefs(esc(content))}</li>`;
+      continue;
+    }
+
+    // Regular line
+    if (inList) { html += '</ul>'; inList = false; }
+    html += `<p>${addXrefs(esc(line))}</p>`;
+  }
+  if (inList) html += '</ul>';
+
+  // Filter by level if selected
+  return html;
+}
+
+function addXrefs(text) {
+  return text.replace(/Protocol\s+(\d+\.\d+[A-Z]?)/gi, (m, id) => {
+    if (PROTOCOLS.find(p => p.id === id)) {
+      return `<span class="xref" data-id="${id}">${m}</span>`;
+    }
+    return m;
+  });
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function escRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// PWA Install
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', () => {
+  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+  document.getElementById('install-banner').style.display = 'none';
+});
+document.getElementById('install-dismiss').addEventListener('click', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+// Hash navigation on load
+window.addEventListener('load', () => {
+  const hash = location.hash.slice(1);
+  if (hash && PROTOCOLS.length) showDetail(hash);
+});
+
+init();
+</script>
+</body>
+</html>
