@@ -20,12 +20,12 @@
 }
 html,body{
 background:var(--bg);color:var(--text);font-family:-apple-system,SF Pro,Inter,system-ui,sans-serif;
--webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+-webkit-font-smoothing:antialiased;overflow:visible;
 }
 body{padding-top:var(--sat);padding-bottom:var(--sab);padding-left:var(--sal);padding-right:var(--sar)}
 
 /* APP SHELL */
-#app{min-height:100vh;position:relative}
+#app{position:relative}
 .view{display:none;animation:fadeIn .2s ease}
 .view.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
